@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WildTrack Malaysia — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --forest:#e8f5e9; --moss:#c8e6c9; --fern:#2a7a40; --sage:#3daa58;
+      --sage-dk:#1e6b30; --mist:#1b5e20; --sky:#1a7fc4; --sky-lt:#54b8f0;
+      --white:#ffffff; --error:#e53935; --text:#1a2e1e; --text-sub:#3d6b44;
+    }
+    html,body { min-height:100%; font-family:'DM Sans',sans-serif; background:var(--forest); color:var(--text); overflow-x:hidden; }
+
+    .bg { position:fixed;inset:0;z-index:0;
+      background:radial-gradient(ellipse 70% 55% at 10% 20%,rgba(134,200,146,.55) 0%,transparent 60%),
+                 radial-gradient(ellipse 60% 70% at 90% 80%,rgba(165,214,167,.45) 0%,transparent 60%),
+                 linear-gradient(160deg,#d0ecd2 0%,#e8f5e9 40%,#c8e6c9 100%); }
+
+    .blob { position:fixed;border-radius:50%;pointer-events:none;z-index:0;animation:blobMove ease-in-out infinite alternate; }
+    .blob1{width:420px;height:420px;background:rgba(42,122,64,.13);top:-80px;left:-100px;animation-duration:12s;}
+    .blob2{width:320px;height:320px;background:rgba(61,170,88,.10);top:30%;right:-60px;animation-duration:15s;animation-delay:-4s;}
+    .blob3{width:260px;height:260px;background:rgba(26,127,196,.08);bottom:5%;left:10%;animation-duration:18s;animation-delay:-8s;}
+    .blob4{width:200px;height:200px;background:rgba(240,165,0,.07);bottom:15%;right:15%;animation-duration:10s;animation-delay:-2s;}
+    @keyframes blobMove{0%{transform:translate(0,0) scale(1);}33%{transform:translate(30px,-20px) scale(1.06);}66%{transform:translate(-20px,30px) scale(.95);}100%{transform:translate(15px,15px) scale(1.03);}}
+
+    .leaf{position:fixed;z-index:1;pointer-events:none;opacity:0;animation:leafFall linear infinite;}
+    @keyframes leafFall{0%{opacity:0;transform:translateY(110vh) rotate(0deg);}8%{opacity:.7;}92%{opacity:.5;}100%{opacity:0;transform:translateY(-10vh) rotate(720deg) translateX(60px);}}
+
+    .wave-bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+    .wave-bg svg{position:absolute;width:100%;height:100%;}
+
+    .page{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+
+    .card{width:100%;max-width:460px;background:rgba(255,255,255,.82);backdrop-filter:blur(24px) saturate(1.6);
+      border:1.5px solid rgba(42,122,64,.2);border-radius:24px;padding:2.4rem 2.4rem 2rem;
+      box-shadow:0 8px 40px rgba(42,122,64,.12),0 2px 12px rgba(42,122,64,.08),0 0 0 1px rgba(255,255,255,.9) inset;
+      animation:slideUp .65s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes slideUp{from{opacity:0;transform:translateY(32px);}to{opacity:1;transform:none;}}
+
+    .brand{display:flex;align-items:center;gap:.9rem;margin-bottom:1.8rem;}
+    .brand-logo{width:58px;height:58px;border-radius:14px;object-fit:contain;background:#fff;box-shadow:0 3px 14px rgba(42,122,64,.2);padding:3px;}
+    .brand-name{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--mist);letter-spacing:.02em;line-height:1.1;}
+    .brand-sub{font-size:.67rem;font-weight:600;color:var(--text-sub);letter-spacing:.14em;text-transform:uppercase;margin-top:3px;}
+    .brand-est{font-size:.62rem;color:#888;letter-spacing:.06em;margin-top:1px;}
+
+    /* Portal chooser */
+    .chooser-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--mist);margin-bottom:.3rem;}
+    .chooser-sub{font-size:.78rem;color:var(--text-sub);margin-bottom:1.4rem;line-height:1.5;}
+    .portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+    .portal-btn{border:1.5px solid rgba(42,122,64,.2);border-radius:14px;padding:1.3rem 1rem;background:rgba(255,255,255,.6);
+      cursor:pointer;transition:all .22s ease;display:flex;flex-direction:column;align-items:center;gap:.55rem;text-align:center;}
+    .portal-btn:hover{background:rgba(255,255,255,.95);transform:translateY(-3px);}
+    .portal-btn.visitor:hover{border-color:var(--sky);box-shadow:0 8px 24px rgba(26,127,196,.15);}
+    .portal-btn.staff:hover{border-color:var(--sage);box-shadow:0 8px 24px rgba(42,122,64,.18);}
+    .portal-emoji{font-size:2rem;line-height:1;}
+    .portal-label{font-size:.9rem;font-weight:600;color:var(--mist);}
+    .portal-hint{font-size:.7rem;color:var(--text-sub);line-height:1.35;}
+
+    /* Guest button */
+    .guest-divider{display:flex;align-items:center;gap:.8rem;margin:.9rem 0 .75rem;color:rgba(42,80,50,.3);font-size:.72rem;}
+    .guest-divider::before,.guest-divider::after{content:'';flex:1;height:1px;background:rgba(42,122,64,.15);}
+    .btn-guest{width:100%;border:1.5px dashed rgba(42,122,64,.3);border-radius:12px;padding:.85rem 1rem;
+      background:rgba(255,255,255,.45);cursor:pointer;transition:all .22s ease;
+      display:flex;align-items:center;justify-content:center;gap:.6rem;
+      font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;color:var(--text-sub);}
+    .btn-guest:hover{background:rgba(255,255,255,.85);border-color:rgba(42,122,64,.55);color:var(--fern);transform:translateY(-1px);}
+
+    /* Guest notice (inline, shown instead of redirecting on protected pages) */
+    .guest-notice{display:none;background:#fff8e1;border:1.5px solid #ffe082;border-radius:10px;
+      padding:.75rem 1rem;font-size:.8rem;color:#7a5000;margin-top:.75rem;text-align:center;line-height:1.5;}
+    .guest-notice.show{display:block;}
+
+    /* Steps */
+    .step{display:none;}
+    .step.active{display:block;animation:fadeIn .3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+    .back-row{margin-bottom:1.1rem;}
+    .back-btn{background:none;border:none;cursor:pointer;color:var(--text-sub);font-size:.78rem;
+      font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:.3rem;padding:0;transition:color .2s;}
+    .back-btn:hover{color:var(--fern);}
+
+    .portal-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.68rem;font-weight:600;
+      letter-spacing:.08em;text-transform:uppercase;padding:.25rem .7rem;border-radius:20px;margin-bottom:.9rem;}
+    .portal-badge.visitor{background:rgba(26,127,196,.1);color:var(--sky);border:1px solid rgba(26,127,196,.25);}
+    .portal-badge.staff{background:rgba(42,122,64,.1);color:var(--sage-dk);border:1px solid rgba(42,122,64,.25);}
+
+    .tabs{display:flex;gap:.4rem;background:rgba(42,122,64,.07);border:1px solid rgba(42,122,64,.15);
+      border-radius:10px;padding:.3rem;margin-bottom:1.5rem;}
+    .tab-btn{flex:1;padding:.55rem;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;
+      font-size:.82rem;font-weight:500;cursor:pointer;transition:all .22s ease;background:transparent;color:var(--text-sub);}
+    .tab-btn.active{background:var(--fern);color:#fff;box-shadow:0 2px 10px rgba(42,122,64,.35);}
+    .tab-btn.active.blue{background:var(--sky);box-shadow:0 2px 10px rgba(26,127,196,.35);}
+
+    .section-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:var(--mist);margin-bottom:.3rem;}
+    .section-sub{font-size:.78rem;color:var(--text-sub);margin-bottom:1.3rem;line-height:1.5;}
+
+    .field{margin-bottom:.9rem;}
+    label{display:block;font-size:.73rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text-sub);margin-bottom:.38rem;}
+    input[type=text],input[type=email],input[type=password],input[type=tel]{
+      width:100%;background:rgba(255,255,255,.8);border:1.5px solid rgba(42,122,64,.18);border-radius:9px;
+      padding:.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);outline:none;
+      transition:border .2s,background .2s,box-shadow .2s;}
+    input::placeholder{color:rgba(42,80,50,.38);}
+    input:focus{border-color:var(--sage);background:#fff;box-shadow:0 0 0 3px rgba(61,170,88,.14);}
+    input.sky:focus{border-color:var(--sky);box-shadow:0 0 0 3px rgba(26,127,196,.14);}
+    input.error-field{border-color:var(--error);}
+
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+    .pw-wrap{position:relative;}
+    .pw-wrap input{padding-right:2.8rem;}
+    .pw-toggle{position:absolute;right:.9rem;top:50%;transform:translateY(-50%);background:none;border:none;
+      cursor:pointer;color:var(--text-sub);font-size:1rem;padding:0;line-height:1;transition:color .2s;}
+    .pw-toggle:hover{color:var(--fern);}
+
+    .err-msg{font-size:.74rem;color:var(--error);margin-top:.28rem;display:none;}
+    .err-msg.show{display:block;}
+
+    .forgot-row{text-align:right;margin-top:-.4rem;margin-bottom:.9rem;}
+    .forgot-row a{font-size:.75rem;color:var(--text-sub);text-decoration:none;transition:color .2s;}
+    .forgot-row a:hover{color:var(--fern);}
+
+    .btn-submit{width:100%;border:none;border-radius:10px;padding:.84rem;font-family:'DM Sans',sans-serif;
+      font-size:.93rem;font-weight:600;color:#fff;cursor:pointer;
+      transition:transform .15s,box-shadow .15s,filter .15s;position:relative;overflow:hidden;margin-top:.4rem;}
+    .btn-submit.green{background:linear-gradient(135deg,var(--fern),var(--sage));box-shadow:0 4px 18px rgba(42,122,64,.35);}
+    .btn-submit.blue{background:linear-gradient(135deg,var(--sky),#3a9fd8);box-shadow:0 4px 18px rgba(26,127,196,.3);}
+    .btn-submit::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);border-radius:inherit;}
+    .btn-submit:hover{transform:translateY(-1px);filter:brightness(1.06);}
+    .btn-submit.loading{pointer-events:none;filter:brightness(.8);}
+    .btn-submit .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;}
+    .btn-submit.loading .btn-label{display:none;}
+    .btn-submit.loading .spinner{display:block;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .divider{display:flex;align-items:center;gap:.8rem;margin:1.1rem 0;color:rgba(42,80,50,.3);font-size:.72rem;}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(42,122,64,.15);}
+
+    /* Login-required banner */
+    .login-banner{display:none;background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.4);border-radius:10px;
+      padding:.7rem 1rem;font-size:.8rem;color:#7a5000;margin-bottom:1.1rem;text-align:center;}
+    .login-banner.show{display:block;}
+
+    .toast{position:fixed;top:1.4rem;right:1.4rem;z-index:99;background:#fff;border:1.5px solid rgba(42,122,64,.3);
+      border-radius:12px;padding:.85rem 1.2rem;display:flex;align-items:center;gap:.6rem;font-size:.85rem;color:var(--mist);
+      box-shadow:0 8px 30px rgba(42,122,64,.15);transform:translateX(130%);transition:transform .4s cubic-bezier(.22,1,.36,1);}
+    .toast.show{transform:translateX(0);}
+
+    .modal-overlay{position:fixed;inset:0;z-index:50;background:rgba(30,60,35,.35);backdrop-filter:blur(6px);
+      display:none;align-items:center;justify-content:center;padding:1.5rem;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:#fff;border:1.5px solid rgba(42,122,64,.2);border-radius:18px;padding:2rem;width:100%;max-width:380px;
+      animation:slideUp .35s ease;box-shadow:0 16px 48px rgba(42,122,64,.15);}
+    .modal-title{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--mist);margin-bottom:.3rem;}
+    .modal-sub{font-size:.78rem;color:var(--text-sub);margin-bottom:1.2rem;}
+    .modal-actions{display:flex;gap:.6rem;margin-top:1.1rem;}
+    .btn-ghost{flex:1;padding:.65rem;background:rgba(42,122,64,.06);border:1px solid rgba(42,122,64,.2);border-radius:8px;
+      font-family:'DM Sans',sans-serif;font-size:.83rem;color:var(--text-sub);cursor:pointer;transition:all .2s;}
+    .btn-ghost:hover{background:rgba(42,122,64,.12);color:var(--fern);}
+    .btn-primary-sm{flex:1;padding:.65rem;background:var(--fern);border:none;border-radius:8px;
+      font-family:'DM Sans',sans-serif;font-size:.83rem;color:#fff;cursor:pointer;transition:filter .2s;}
+    .btn-primary-sm:hover{filter:brightness(1.1);}
+
+    @media(max-height:720px){.page{align-items:flex-start;padding-top:1rem;}html,body{overflow-y:auto;}}
+  </style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="blob blob1"></div><div class="blob blob2"></div>
+<div class="blob blob3"></div><div class="blob blob4"></div>
+
+<div class="wave-bg">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,200 C200,120 400,280 600,200 C800,120 1000,260 1200,200 C1320,160 1380,180 1440,200" fill="none" stroke="rgba(42,122,64,.08)" stroke-width="2.5"/>
+    <path d="M0,350 C180,270 360,430 540,350 C720,270 900,410 1080,350 C1260,290 1380,330 1440,350" fill="none" stroke="rgba(42,122,64,.07)" stroke-width="2"/>
+    <path d="M0,500 C220,420 440,560 660,500 C880,440 1100,560 1320,500 C1380,480 1420,490 1440,500" fill="none" stroke="rgba(42,122,64,.06)" stroke-width="2"/>
+    <path d="M0,650 C160,580 320,700 480,650 C640,600 800,700 960,650 C1120,600 1300,660 1440,650" fill="none" stroke="rgba(42,122,64,.05)" stroke-width="1.5"/>
+    <path d="M0,800 C200,730 400,860 600,800 C800,740 1000,850 1200,800 C1320,770 1380,785 1440,800" fill="none" stroke="rgba(42,122,64,.04)" stroke-width="1.5"/>
+    <ellipse cx="120" cy="140" rx="18" ry="9" fill="rgba(61,170,88,.09)" transform="rotate(-35,120,140)"/>
+    <ellipse cx="1300" cy="280" rx="14" ry="7" fill="rgba(42,122,64,.08)" transform="rotate(20,1300,280)"/>
+  </svg>
+</div>
+
+<div class="page">
+<div class="card">
+
+  <div class="brand">
+    <img src="images/logo.png" alt="WildTrack Logo" class="brand-logo" onerror="this.style.display='none'">
+    <div class="brand-text">
+      <div class="brand-name">WildTrack</div>
+      <div class="brand-sub">Malaysia</div>
+      <div class="brand-est">Est. 2026</div>
+    </div>
+  </div>
+
+  <!-- Login-required notice (shown when ?reason=login_required) -->
+  <div class="login-banner" id="loginBanner">🔐 Please log in to continue.</div>
+
+  <!-- ══ STEP 0: Portal chooser ══ -->
+  <div id="step-portal">
+    <div class="chooser-title">Welcome! Who are you?</div>
+    <div class="chooser-sub">Choose your portal to get started.</div>
+    <div class="portal-grid">
+      <button class="portal-btn visitor" onclick="enterPortal('visitor')">
+        <span class="portal-emoji">🐻‍❄️</span>
+        <span class="portal-label">Visitor</span>
+        <span class="portal-hint">Explore wildlife &amp; book tours</span>
+      </button>
+      <button class="portal-btn staff" onclick="enterPortal('staff')">
+        <span class="portal-emoji">🐯</span>
+        <span class="portal-label">Staff</span>
+        <span class="portal-hint">Caretakers, admins &amp; field team</span>
+      </button>
+    </div>
+    <div class="guest-divider">or</div>
+    <button class="btn-guest" onclick="continueAsGuest()">
+      <span style="font-size:1.2rem;">🚶</span> Continue as Guest
+    </button>
+    <div class="guest-notice" id="guestNoticePortal"></div>
+  </div>
+
+  <!-- ══ STEP 1a: VISITOR ══ -->
+  <div class="step" id="step-visitor">
+    <div class="back-row">
+      <!-- Back always goes to mainPage.php when portal was chosen directly or
+           when this was a protected redirect. If user came from portal chooser
+           without any params, go back to chooser instead. -->
+      <button class="back-btn" onclick="handleBack()">← Back</button>
+    </div>
+    <div class="portal-badge visitor">🐻‍❄️ Visitor Portal</div>
+    <div class="tabs">
+      <button class="tab-btn active blue" id="vtab-login"  onclick="switchVisitorTab('login')">Sign In</button>
+      <button class="tab-btn"             id="vtab-signup" onclick="switchVisitorTab('signup')">Register</button>
+    </div>
+
+    <!-- Visitor Login -->
+    <div id="vpanel-login">
+      <div class="section-title">Welcome back</div>
+      <div class="section-sub">Sign in to your visitor account.</div>
+      <div class="field">
+        <label for="vl-email">Email Address</label>
+        <input type="email" id="vl-email" class="sky" placeholder="you@email.com"/>
+        <div class="err-msg" id="err-vl-email">Please enter a valid email.</div>
+      </div>
+      <div class="field">
+        <label for="vl-pw">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="vl-pw" class="sky" placeholder="••••••••"/>
+          <button class="pw-toggle" type="button" onclick="togglePw('vl-pw',this)">👁</button>
+        </div>
+        <div class="err-msg" id="err-vl-pw">Password is required.</div>
+      </div>
+      <div class="forgot-row"><a href="#" onclick="openModal();return false;">Forgot password?</a></div>
+      <button class="btn-submit blue" id="btn-vlogin" onclick="handleVisitorLogin()">
+        <span class="btn-label">Sign In</span><div class="spinner"></div>
+      </button>
+      <div class="divider">or</div>
+      <div style="text-align:center;font-size:.78rem;color:var(--text-sub);">
+        New visitor? <a href="#" onclick="switchVisitorTab('signup');return false;" style="color:var(--sky);font-weight:600;text-decoration:none;">Register here</a>
+      </div>
+      <!-- Guest option — hidden when page is a protected redirect -->
+      <div id="guestSectionLogin">
+        <div class="divider">or</div>
+        <button class="btn-guest" onclick="continueAsGuest()">
+          <span style="font-size:1.2rem;">🚶</span> Continue as Guest
+        </button>
+        <div class="guest-notice" id="guestNoticeLogin"></div>
+      </div>
+    </div>
+
+    <!-- Visitor Sign Up -->
+    <div id="vpanel-signup" style="display:none;">
+      <div class="section-title">Plan your visit</div>
+      <div class="section-sub">Create a free account to book tours &amp; explore wildlife.</div>
+      <div class="row2">
+        <div class="field" style="margin-bottom:.6rem;">
+          <label for="vs-first">First Name</label>
+          <input type="text" id="vs-first" class="sky" placeholder="Jane"/>
+          <div class="err-msg" id="err-vs-first">Required.</div>
+        </div>
+        <div class="field" style="margin-bottom:.6rem;">
+          <label for="vs-last">Last Name</label>
+          <input type="text" id="vs-last" class="sky" placeholder="Doe"/>
+          <div class="err-msg" id="err-vs-last">Required.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="vs-email">Email Address</label>
+        <input type="email" id="vs-email" class="sky" placeholder="you@email.com"/>
+        <div class="err-msg" id="err-vs-email">Please enter a valid email.</div>
+      </div>
+      <div class="field">
+        <label for="vs-phone">Phone <span style="font-weight:300;text-transform:none;letter-spacing:0;">(optional)</span></label>
+        <input type="tel" id="vs-phone" class="sky" placeholder="+60 12-345 6789"/>
+      </div>
+      <div class="field">
+        <label for="vs-pw">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="vs-pw" class="sky" placeholder="Min. 8 characters"/>
+          <button class="pw-toggle" type="button" onclick="togglePw('vs-pw',this)">👁</button>
+        </div>
+        <div class="err-msg" id="err-vs-pw">Password must be at least 8 characters.</div>
+      </div>
+      <div class="field">
+        <label for="vs-pw2">Confirm Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="vs-pw2" class="sky" placeholder="Repeat password"/>
+          <button class="pw-toggle" type="button" onclick="togglePw('vs-pw2',this)">👁</button>
+        </div>
+        <div class="err-msg" id="err-vs-pw2">Passwords do not match.</div>
+      </div>
+      <button class="btn-submit blue" id="btn-vsignup" onclick="handleVisitorSignup()">
+        <span class="btn-label">Create Visitor Account</span><div class="spinner"></div>
+      </button>
+      <div id="guestSectionSignup">
+        <div class="divider">or</div>
+        <button class="btn-guest" onclick="continueAsGuest()">
+          <span style="font-size:1.2rem;">🚶</span> Continue as Guest
+        </button>
+        <div class="guest-notice" id="guestNoticeSignup"></div>
+      </div>
+    </div>
+  </div><!-- /step-visitor -->
+
+  <!-- ══ STEP 1b: STAFF ══ -->
+  <div class="step" id="step-staff">
+    <div class="back-row"><button class="back-btn" onclick="goBackToChooser()">← Back</button></div>
+    <div class="portal-badge staff">🐯 Staff Portal</div>
+    <div class="tabs"><button class="tab-btn active" id="stab-login">Sign In</button></div>
+    <div id="spanel-login">
+      <div class="section-title">Staff sign in</div>
+      <div class="section-sub">Access your WildTrack staff dashboard.</div>
+      <div class="field">
+        <label for="sl-email">Work Email</label>
+        <input type="email" id="sl-email" placeholder="you@wildtrack.org"/>
+        <div class="err-msg" id="err-sl-email">Please enter a valid email.</div>
+      </div>
+      <div class="field">
+        <label for="sl-pw">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="sl-pw" placeholder="••••••••"/>
+          <button class="pw-toggle" type="button" onclick="togglePw('sl-pw',this)">👁</button>
+        </div>
+        <div class="err-msg" id="err-sl-pw">Password is required.</div>
+      </div>
+      <div class="forgot-row"><a href="#" onclick="openModal();return false;">Forgot password?</a></div>
+      <button class="btn-submit green" id="btn-slogin" onclick="handleStaffLogin()">
+        <span class="btn-label">Sign In</span><div class="spinner"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: First-login password change ══ -->
+  <div class="step" id="step-changepassword">
+    <div class="back-row"><button class="back-btn" onclick="goBackToChooser()">← Back</button></div>
+    <div style="text-align:center;margin-bottom:1.4rem;">
+      <div style="font-size:2rem;margin-bottom:.5rem;">🔐</div>
+      <div class="section-title">Set Your Password</div>
+      <div class="section-sub">Your account was created by an administrator.<br/>Please set your own password before continuing.</div>
+    </div>
+    <div class="field">
+      <label for="cp-pw">New Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="cp-pw" placeholder="At least 8 characters"/>
+        <button class="pw-toggle" type="button" onclick="togglePw('cp-pw',this)">👁</button>
+      </div>
+      <div class="err-msg" id="err-cp-pw">Password must be at least 8 characters.</div>
+    </div>
+    <div class="field">
+      <label for="cp-pw2">Confirm New Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="cp-pw2" placeholder="Repeat password"/>
+        <button class="pw-toggle" type="button" onclick="togglePw('cp-pw2',this)">👁</button>
+      </div>
+      <div class="err-msg" id="err-cp-pw2">Passwords do not match.</div>
+    </div>
+    <button class="btn-submit green" id="btn-changepw" onclick="handleChangePassword()">
+      <span class="btn-label">Set Password &amp; Continue</span><div class="spinner"></div>
+    </button>
+  </div>
+
+</div><!-- /card -->
+</div><!-- /page -->
+
+<!-- Forgot password modal -->
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal">
+    <div class="modal-title">Reset Password</div>
+    <div class="modal-sub">Enter your email and we'll send a reset link.</div>
+    <div class="field">
+      <label for="reset-email">Email Address</label>
+      <input type="email" id="reset-email" placeholder="you@email.com"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary-sm" onclick="sendReset()">Send Link</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toast-icon">✅</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+  /* ── Floating leaves ── */
+  ['🍃','🌿','🌱','🍂','🌾'].forEach(function(ch, i) {
+    for (var j = 0; j < 4; j++) {
+      var l = document.createElement('div');
+      l.className = 'leaf'; l.textContent = ch;
+      l.style.cssText = 'left:'+Math.random()*100+'vw;bottom:-5vh;font-size:'+(0.7+Math.random()*.9)+'rem;animation-duration:'+(14+Math.random()*18)+'s;animation-delay:'+(Math.random()*20)+'s;';
+      document.body.appendChild(l);
+    }
+  });
+
+  /* ══════════════════════════════════════════════════════
+     URL PARAM ROUTING
+     Supported params:
+       ?reason=login_required          → skip chooser, visitor sign-in,
+                                         hide guest option, back = mainPage
+       ?portal=visitor&tab=login       → skip chooser, visitor sign-in,
+                                         keep guest option, back = mainPage
+       ?portal=visitor&tab=signup      → skip chooser, visitor register,
+                                         keep guest option, back = mainPage
+       ?redirect=<url>                 → where to go after successful login
+     No params                         → show portal chooser
+  ══════════════════════════════════════════════════════ */
+  const params      = new URLSearchParams(location.search);
+  const isProtected = params.get('reason') === 'login_required';
+  const portalParam = params.get('portal');   // 'visitor' | null
+  const tabParam    = params.get('tab');       // 'login' | 'signup' | null
+  const redirectTo  = params.get('redirect') || 'mainPage.php';
+
+  // Whether the back button should go to mainPage instead of the chooser
+  const backToMain  = isProtected || portalParam === 'visitor';
+
+  window.addEventListener('DOMContentLoaded', function () {
+
+    // ── Show banner if redirected from a protected page ──
+    if (isProtected) {
+      document.getElementById('loginBanner').classList.add('show');
+    }
+
+    // ── Jump straight to visitor step if portal=visitor or protected ──
+    if (isProtected || portalParam === 'visitor') {
+      document.getElementById('step-portal').style.display = 'none';
+      document.getElementById('step-visitor').classList.add('active');
+
+      // Open the correct tab
+      if (tabParam === 'signup') {
+        switchVisitorTab('signup');
+      } else {
+        switchVisitorTab('login');
+      }
+
+      // On protected redirects, hide the "Continue as Guest" sections
+      if (isProtected) {
+        document.getElementById('guestSectionLogin').style.display  = 'none';
+        document.getElementById('guestSectionSignup').style.display = 'none';
+      }
+    }
+  });
+
+  /* ── Navigation helpers ── */
+  function enterPortal(t) {
+    document.getElementById('step-portal').style.display = 'none';
+    document.getElementById('step-' + t).classList.add('active');
+  }
+
+  /** Visitor back button — goes to mainPage when arrived via URL params, chooser otherwise */
+  function handleBack() {
+    if (backToMain) {
+      window.location.href = 'mainPage.php';
+    } else {
+      goBackToChooser();
+    }
+  }
+
+  /** Staff / change-password back button — always returns to portal chooser */
+  function goBackToChooser() {
+    document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById('step-portal').style.display = '';
+    clearErrors();
+  }
+
+  function switchVisitorTab(t) {
+    document.getElementById('vtab-login').className  = 'tab-btn' + (t === 'login'  ? ' active blue' : '');
+    document.getElementById('vtab-signup').className = 'tab-btn' + (t === 'signup' ? ' active blue' : '');
+    document.getElementById('vpanel-login').style.display  = t === 'login'  ? '' : 'none';
+    document.getElementById('vpanel-signup').style.display = t === 'signup' ? '' : 'none';
+    clearErrors();
+  }
+
+  /** Continue as Guest:
+   *  - Protected redirect → show inline notice (cannot bypass)
+   *  - Otherwise → go to mainPage (safe browsing) */
+  function continueAsGuest() {
+    if (isProtected) {
+      var msg = '🔒 A login is required to access that page. Please sign in or create a free account.';
+      ['guestNoticePortal','guestNoticeLogin','guestNoticeSignup'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.textContent = msg; el.classList.add('show'); }
+      });
+    } else {
+      window.location.href = 'mainPage.php';
+    }
+  }
+
+  /* ── Generic helpers ── */
+  function togglePw(id,btn){var i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
+  function showErr(id,v){var e=document.getElementById(id);if(e)e.classList.toggle('show',v);}
+  function markField(id,v){var e=document.getElementById(id);if(e)e.classList.toggle('error-field',v);}
+  function clearErrors(){document.querySelectorAll('.err-msg').forEach(function(e){e.classList.remove('show');});document.querySelectorAll('.error-field').forEach(function(e){e.classList.remove('error-field');});}
+  function isEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+  function setLoading(id,v){document.getElementById(id).classList.toggle('loading',v);}
+  function showToast(msg,icon){
+    icon=icon||'✅';
+    document.getElementById('toast-msg').textContent=msg;
+    document.getElementById('toast-icon').textContent=icon;
+    var t=document.getElementById('toast');t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},3500);
+  }
+
+  /* ── Visitor Login ── */
+  async function handleVisitorLogin() {
+    clearErrors(); var ok = true;
+    var email = document.getElementById('vl-email').value.trim();
+    var pw    = document.getElementById('vl-pw').value;
+    if (!isEmail(email)) { showErr('err-vl-email',true); markField('vl-email',true); ok=false; }
+    if (!pw)              { showErr('err-vl-pw',true);   markField('vl-pw',true);    ok=false; }
+    if (!ok) return;
+    setLoading('btn-vlogin',true);
+    try {
+      var res  = await fetch('http://localhost/WildTrack/api/auth.php?action=login', {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:email, password:pw})
+      });
+      var data = await res.json();
+      if (data.success) {
+        showToast('Welcome back! Redirecting… 🧭');
+        setTimeout(function(){window.location.href=redirectTo;}, 1200);
+      } else {
+        showToast(data.message,'❌'); setLoading('btn-vlogin',false);
+      }
+    } catch(e) { showToast('Cannot connect to server.','❌'); setLoading('btn-vlogin',false); }
+  }
+
+  /* ── Visitor Sign Up ── */
+  async function handleVisitorSignup() {
+    clearErrors(); var ok = true;
+    var first = document.getElementById('vs-first').value.trim();
+    var last  = document.getElementById('vs-last').value.trim();
+    var email = document.getElementById('vs-email').value.trim();
+    var pw    = document.getElementById('vs-pw').value;
+    var pw2   = document.getElementById('vs-pw2').value;
+    if (!first)          { showErr('err-vs-first',true); markField('vs-first',true); ok=false; }
+    if (!last)           { showErr('err-vs-last',true);  markField('vs-last',true);  ok=false; }
+    if (!isEmail(email)) { showErr('err-vs-email',true); markField('vs-email',true); ok=false; }
+    if (pw.length < 8)   { showErr('err-vs-pw',true);   markField('vs-pw',true);    ok=false; }
+    if (pw !== pw2)      { showErr('err-vs-pw2',true);  markField('vs-pw2',true);   ok=false; }
+    if (!ok) return;
+    setLoading('btn-vsignup',true);
+    try {
+      var res  = await fetch('http://localhost/WildTrack/api/auth.php?action=register', {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({firstName:first, lastName:last, email:email, password:pw, role:'visitor'})
+      });
+      var data = await res.json();
+      if (data.success) {
+        showToast('Account created! Welcome, '+first+' 🌿');
+        setTimeout(function(){switchVisitorTab('login');document.getElementById('vl-email').value=email;}, 1500);
+      } else {
+        showToast(data.message,'❌'); setLoading('btn-vsignup',false);
+      }
+    } catch(e) { showToast('Cannot connect to server.','❌'); setLoading('btn-vsignup',false); }
+  }
+
+  /* ── Staff Login ── */
+  async function handleStaffLogin() {
+    clearErrors(); var ok = true;
+    var email = document.getElementById('sl-email').value.trim();
+    var pw    = document.getElementById('sl-pw').value;
+    if (!isEmail(email)) { showErr('err-sl-email',true); markField('sl-email',true); ok=false; }
+    if (!pw)              { showErr('err-sl-pw',true);   markField('sl-pw',true);    ok=false; }
+    if (!ok) return;
+    setLoading('btn-slogin',true);
+    try {
+      var res  = await fetch('http://localhost/WildTrack/api/auth.php?action=login', {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:email, password:pw})
+      });
+      var data = await res.json();
+      if (data.success) {
+        var role = data.user.role;
+        if (role !== 'admin' && role !== 'worker') {
+          showToast('This account is not a staff account.','❌');
+          setLoading('btn-slogin',false); return;
+        }
+        if (data.must_change_pw) {
+          document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+          document.getElementById('step-portal').style.display='none';
+          document.getElementById('step-changepassword').classList.add('active');
+          setLoading('btn-slogin',false); return;
+        }
+        if (role === 'admin') {
+          showToast('Welcome, Admin! Redirecting… 🛡️');
+          setTimeout(function(){window.location.href='admin.php';}, 1200);
+        } else {
+          showToast('Welcome! Redirecting to staff portal… 🐾');
+          setTimeout(function(){window.location.href='mainpageworker.php';}, 1200);
+        }
+      } else {
+        showToast(data.message,'❌'); setLoading('btn-slogin',false);
+      }
+    } catch(e) { showToast('Cannot connect to server.','❌'); setLoading('btn-slogin',false); }
+  }
+
+  /* ── Change Password (first login) ── */
+  async function handleChangePassword() {
+    clearErrors(); var ok = true;
+    var pw  = document.getElementById('cp-pw').value;
+    var pw2 = document.getElementById('cp-pw2').value;
+    if (pw.length < 8) { showErr('err-cp-pw',true);  ok=false; }
+    if (pw !== pw2)    { showErr('err-cp-pw2',true); ok=false; }
+    if (!ok) return;
+    setLoading('btn-changepw',true);
+    try {
+      var res  = await fetch('http://localhost/WildTrack/api/auth.php?action=change_password', {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({new_password:pw, confirm_password:pw2})
+      });
+      var data = await res.json();
+      if (data.success) {
+        showToast('Password set! Redirecting… 🐾');
+        var meRes  = await fetch('http://localhost/WildTrack/api/auth.php?action=me', {credentials:'include'});
+        var meData = await meRes.json();
+        setTimeout(function(){
+          window.location.href = meData.user && meData.user.role==='admin' ? 'admin.php' : 'mainpageworker.html';
+        }, 1200);
+      } else {
+        showToast(data.message,'❌'); setLoading('btn-changepw',false);
+      }
+    } catch(e) { showToast('Cannot connect to server.','❌'); setLoading('btn-changepw',false); }
+  }
+
+  /* ── Forgot password modal ── */
+  function openModal()  { document.getElementById('forgotModal').classList.add('open'); }
+  function closeModal() { document.getElementById('forgotModal').classList.remove('open'); }
+  function sendReset()  {
+    var v = document.getElementById('reset-email').value.trim();
+    if (!isEmail(v)) { alert('Please enter a valid email.'); return; }
+    closeModal(); showToast('Reset link sent! Check your inbox. 📧');
+  }
+  document.getElementById('forgotModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+</script>
+</body>
+</html>
