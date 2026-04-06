@@ -5,10 +5,6 @@ session_start();
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
-
-    // ─────────────────────────────────────────────────────
-    //  EXISTING: buy (kept for reference / direct purchase)
-    // ─────────────────────────────────────────────────────
     case 'buy': {
         $user       = requireLogin();
         $body       = jsonBody();
