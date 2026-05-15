@@ -1,4 +1,3 @@
-
 📌 WildTrack Zoo System
 - Final Year Project (Diploma In Information Technology)
 - Frontend Developer
@@ -8,8 +7,6 @@ About
 WildTrack Zoo System is a final year project focused on developing a web-based zoo management system. The system is designed to improve the efficiency of managing zoo operations, including data handling, user interaction, and system workflow.
 
 This project reflects my interest in frontend development, where I focus on building clean, functional, and user-friendly interfaces.
-
-Final Year Project WildTrack Zoo System (Diploma)
 
 👥 Group Members
 - Member YvonneTanYX (Leader)
